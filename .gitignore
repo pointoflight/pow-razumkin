@@ -1,0 +1,30 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+web/node_modules/
+api/node_modules/
+
+# Next.js build output
+web/.next/
+web/out/
+
+# Uploads (runtime data)
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.DS_Store
+*.bak
+.idea/
+.vscode/
+
+# Docker volumes (not committed)
+postgres_data/

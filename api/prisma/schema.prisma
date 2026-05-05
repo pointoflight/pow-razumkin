@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  parent
+  business_owner
+  educator
+  admin
+}
+
+enum OrganizationType {
+  school
+  kindergarten
+  center
+  sports_club
+  music
+  art
+  language
+  tutoring
+  other
+}
+
+enum LeadStatus {
+  new
+  contacted
+  in_progress
+  converted
+  rejected
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  name         String
+  phone        String?
+  role         UserRole  @default(parent)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  organizations   Organization[]
+  educatorProfile EducatorProfile?
+  children        Child[]
+  leadsAsParent   Lead[]   @relation("ParentLeads")
+  reviews         Review[]
+  refreshTokens   RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Organization {
+  id          String           @id @default(cuid())
+  ownerId     String           @map("owner_id")
+  name        String
+  description String?
+  type        OrganizationType
+  address     String?
+  city        String?
+  phone       String?
+  email       String?
+  website     String?
+  logoUrl     String?          @map("logo_url")
+  photos      String[]         @default([])
+  isVerified  Boolean          @default(false) @map("is_verified")
+  isActive    Boolean          @default(true) @map("is_active")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  owner    User      @relation(fields: [ownerId], references: [id])
+  services Service[]
+  leads    Lead[]
+  reviews  Review[]
+
+  @@map("organizations")
+}
+
+model EducatorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  bio             String?
+  specializations String[] @default([])
+  experienceYears Int?     @map("experience_years")
+  photoUrl        String?  @map("photo_url")
+  city            String?
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  leads   Lead[]
+  reviews Review[]
+
+  @@map("educator_profiles")
+}
+
+model Child {
+  id        String    @id @default(cuid())
+  parentId  String    @map("parent_id")
+  name      String
+  birthDate DateTime? @map("birth_date")
+  gender    String?
+  interests String[]  @default([])
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  parent User   @relation(fields: [parentId], references: [id])
+  leads  Lead[]
+
+  @@map("children")
+}
+
+model Service {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  nameRu         String       @map("name_ru")
+  nameEn         String?      @map("name_en")
+  descriptionRu  String?      @map("description_ru")
+  descriptionEn  String?      @map("description_en")
+  priceFrom      Float?       @map("price_from")
+  priceTo        Float?       @map("price_to")
+  ageFrom        Int?         @map("age_from")
+  ageTo          Int?         @map("age_to")
+  scheduleInfo   String?      @map("schedule_info")
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leads        Lead[]
+
+  @@map("services")
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  parentId       String     @map("parent_id")
+  organizationId String?    @map("organization_id")
+  educatorId     String?    @map("educator_id")
+  childId        String?    @map("child_id")
+  serviceId      String?    @map("service_id")
+  status         LeadStatus @default(new)
+  message        String?
+  parentName     String     @map("parent_name")
+  parentPhone    String     @map("parent_phone")
+  notes          String?
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  parent       User             @relation("ParentLeads", fields: [parentId], references: [id])
+  organization Organization?    @relation(fields: [organizationId], references: [id])
+  educator     EducatorProfile? @relation(fields: [educatorId], references: [id])
+  child        Child?           @relation(fields: [childId], references: [id])
+  service      Service?         @relation(fields: [serviceId], references: [id])
+
+  @@map("leads")
+}
+
+model Review {
+  id             String          @id @default(cuid())
+  authorId       String          @map("author_id")
+  organizationId String?         @map("organization_id")
+  educatorId     String?         @map("educator_id")
+  rating         Int
+  body           String?
+  isModerated    Boolean         @default(false) @map("is_moderated")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  author       User             @relation(fields: [authorId], references: [id])
+  organization Organization?    @relation(fields: [organizationId], references: [id])
+  educator     EducatorProfile? @relation(fields: [educatorId], references: [id])
+
+  @@map("reviews")
+}
