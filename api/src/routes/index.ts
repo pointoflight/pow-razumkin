@@ -8,6 +8,7 @@ import { reviewsRouter } from './reviews';
 import { servicesRouter } from './services';
 import { uploadRouter } from './upload';
 import { adminRouter } from './admin';
+import { aiSearchRouter } from './ai-search';
 
 export const router = Router();
 
@@ -20,3 +21,4 @@ router.use('/reviews', reviewsRouter);
 router.use('/services', servicesRouter);
 router.use('/upload', uploadRouter);
 router.use('/admin', adminRouter);
+router.use('/ai-search', aiSearchRouter);

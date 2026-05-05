@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import OrganizationCard from '@/components/marketplace/OrganizationCard';
 import { serverFetch } from '@/lib/api';
+import AiSearch from '@/components/AiSearch';
 
 const CATEGORIES = [
   { key: 'kindergarten', icon: '🏠', color: 'bg-green-50 border-green-200 text-green-700' },
@@ -51,6 +52,13 @@ export default async function HomePage({ params }: { params: { locale: string } 
               {t('search_button')}
             </button>
           </form>
+        </div>
+      </section>
+
+      {/* AI Search section */}
+      <section className="py-8 px-4 bg-white border-b border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <AiSearch locale={locale} />
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import OrganizationCard from '@/components/marketplace/OrganizationCard';
 import { serverFetch } from '@/lib/api';
 import Link from 'next/link';
+import AiSearch from '@/components/AiSearch';
 
 const TYPES = [
   { value: '', label: 'Все категории' },
@@ -106,8 +107,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
         {/* Results */}
         <div className="flex-1 min-w-0">
-          {/* Search bar */}
-          <form method="get" className="flex gap-3 mb-6">
+          {/* Standard search bar */}
+          <form method="get" className="flex gap-3 mb-4">
             {type && <input type="hidden" name="type" value={type} />}
             {city && <input type="hidden" name="city" value={city} />}
             <input
@@ -121,6 +122,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               Найти
             </button>
           </form>
+
+          {/* AI search */}
+          <div className="bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-200 rounded-xl p-4 mb-6">
+            <AiSearch locale={locale} />
+          </div>
 
           <div className="flex items-center justify-between mb-5">
             <h1 className="text-xl font-bold text-gray-900">
